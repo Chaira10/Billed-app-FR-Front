@@ -12,7 +12,24 @@ export default class NewBill {
     formNewBill.addEventListener("submit", this.handleSubmit)
     // Récupère l'élément d'entrée de type fichier et ajoute un écouteur d'événement "change"
     const file = this.document.querySelector(`input[data-testid="file"]`)
-    file.addEventListener("change", this.handleChangeFile)
+    // file.addEventListener("change", this.handleChangeFile)
+    file.addEventListener("change", (e) => {
+      const errorMessage = document.querySelector(
+        ".form-newbill-container span.error"
+      );
+      const fileInput = document.querySelector(`input[data-testid="file"]`);
+      const availableExtension = /.+jpeg$|.+jpg$|.+png$/i;
+      const filePath = e.target.value.split(/\\/g);
+      const fileName = filePath[filePath.length - 1];
+      if (!availableExtension.test(fileName)) {
+        errorMessage.classList.add("active");
+        fileInput.value = null;
+      } else {
+        errorMessage.classList.remove("active");
+        this.handleChangeFile(e);
+      }
+    });
+
     this.fileUrl = null // Initialise l'URL du fichier à null
     this.fileName = null // Initialise le nom du fichier à null
     this.billId = null // Initialise l'identifiant de la facture à null

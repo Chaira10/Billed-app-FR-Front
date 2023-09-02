@@ -176,34 +176,33 @@ export default class {
     this.onNavigate(ROUTES_PATH['Dashboard'])
   }
 // Fonction pour afficher ou masquer les tickets en fonction de l'index donné
-  handleShowTickets(e, bills, index) {
-    // Vérifie si le compteur n'est pas défini ou si l'index a changé
-    if (this.counter === undefined || this.index !== index) this.counter = 0
-    // Vérifie si l'index n'est pas défini ou a changé
-    if (this.index === undefined || this.index !== index) this.index = index
-    // Si le compteur est pair (0, 2, 4, ...), alors afficher les tickets correspondants
-    if (this.counter % 2 === 0) {
-      // Réinitialisation de l'icône de flèche pour indiquer l'ouverture
-      $(`#arrow-icon${this.index}`).css({ transform: 'rotate(0deg)'})
-      // Remplissage du conteneur avec les cartes de factures filtrées par statut
-      $(`#status-bills-container${this.index}`)
-        .html(cards(filteredBills(bills, getStatus(this.index))))
-      this.counter ++
-    } else {
-       // Rotation de l'icône de flèche pour indiquer la fermeture
-      $(`#arrow-icon${this.index}`).css({ transform: 'rotate(90deg)'})
-      // Suppression du contenu du conteneur
-      $(`#status-bills-container${this.index}`)
-        .html("")
-      this.counter ++
-    }
-    // Ajout d'un écouteur de clic à chaque ticket pour la gestion de l'édition
-    bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
-    })
-    // Renvoie la liste des factures mise à jour
-    return bills
+handleShowTickets(e, bills, index) {
+  if (this.index === undefined || this.index !== index) this.index = index;
+  const filteredBillsArray = filteredBills(bills, getStatus(this.index));
+  const opennedTickets = $(`#status-bills-container${this.index} .bill-card`);
+
+  if (opennedTickets.length === 0) {
+    $(`#arrow-icon${this.index}`).css({ transform: "rotate(0deg)" });
+    $(`#status-bills-container${this.index}`).html(
+      cards(filteredBills(bills, getStatus(this.index)))
+    );
+
+    filteredBillsArray.forEach((bill) => {
+      $(`#open-bill${bill.id}`).on("click", (e) =>
+        this.handleEditTicket(e, bill, bills)
+      );
+    });
+  } else {
+    $(`#arrow-icon${this.index}`).css({ transform: "rotate(90deg)" });
+    $(`#status-bills-container${this.index}`).html("");
+
+    filteredBillsArray.forEach((bill) => {
+      $(`#open-bill${bill.id}`).off("click");
+    });
   }
+
+  return bills;
+}
  // Récupération de toutes les factures pour tous les utilisateurs
   getBillsAllUsers = () => {
     // Vérifie si la propriété 'store' est définie

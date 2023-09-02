@@ -155,13 +155,34 @@ describe("Given that I am a user on login page", () => {
         })
       );
     });
+
     // On teste si l'élément contenant le texte "Mes notes de frais" est rendu à l'écran
     test("It should renders Bills page", () => {
       expect(screen.getAllByText("Mes notes de frais")).toBeTruthy();
     });
-  });
-});
 
+  });
+
+});
+describe("Login Page - Employee Login", () => {
+test("When I enter incorrect email and password, the form should not submit", () => {
+  document.body.innerHTML = LoginUI();
+  const inputEmailUser = screen.getByTestId("employee-email-input");
+  const inputPasswordUser = screen.getByTestId("employee-password-input");
+  const form = screen.getByTestId("form-employee");
+  const handleSubmit = jest.fn((e) => e.preventDefault());
+  form.addEventListener("submit", handleSubmit);
+
+  fireEvent.change(inputEmailUser, { target: { value: "incorrectemail" } });
+  fireEvent.change(inputPasswordUser, { target: { value: "incorrectpassword" } });
+
+  fireEvent.submit(form);
+
+  expect(handleSubmit).toHaveBeenCalled();
+  expect(inputEmailUser.value).toBe("incorrectemail");
+  expect(inputPasswordUser.value).toBe("incorrectpassword");
+});
+});
 // On décrit le contexte : un utilisateur sur la page de connexion
 describe("Given that I am a user on login page", () => {
   // On décrit le scénario : lorsque je ne remplis pas les champs et que je clique sur le bouton de connexion administrateur
@@ -308,4 +329,9 @@ describe("Given that I am a user on login page", () => {
       expect(screen.queryByText("Validations")).toBeTruthy();
     });
   });
+
+  describe("Login Page - Admin Login", () => {
+    
 });
+});
+

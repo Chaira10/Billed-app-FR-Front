@@ -17,6 +17,7 @@ import router from "../app/Router.js";
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
+
     test("Then bill icon in vertical layout should be highlighted", async () => {
       // On simule une session utilisateur de type "Employee" en manipulant localStorage.
       // Ceci est nécessaire pour que l'application pense qu'un utilisateur est connecté.
@@ -42,6 +43,7 @@ describe("Given I am connected as an employee", () => {
       const windowIcon = screen.getByTestId("icon-window");
       // À ce stade, nous pourrions effectuer une vérification pour voir si l'icône de la fenêtre est mise en surbrillance comme prévu.
       // Ceci est laissé en tant que "to-do" dans le code.
+      expect(windowIcon.classList).toContain("active-icon");
     });
     test("Then bills should be ordered from earliest to latest", () => {
       // On remplace le contenu du <body> par le rendu des factures, ce qui nous permet de cibler les éléments DOM des factures.
@@ -135,6 +137,115 @@ describe("Given I am connected as an employee", () => {
       billsContainer.handleClickIconEye(iconEye);
       // Vérifier si un élément avec la classe "modal" existe dans le document
       expect(document.querySelector(".modal")).toBeTruthy();
+    });
+  });
+  describe("getBills", () => {
+    // Définition d'une fonction onNavigate pour simuler la navigation
+    const onNavigate = (pathname) => {
+      document.body.innerHTML = ROUTES({ pathname });
+    };
+
+    // Création d'une nouvelle instance de Bills avec des paramètres
+    const billsContainer = new Bills({
+      document,
+      onNavigate,
+      store: mockStore,
+      localStorage: window.localStorage,
+    });
+
+    test("it should return formated Date and status", async () => {
+      // Appel de la fonction getBills de billsContainer
+      const billsToDisplay = await billsContainer.getBills();
+
+     // Récupération des factures à partir de mockStore
+      const mockedBills = await mockStore.bills().list();
+
+      // Vérification si la date de la première facture est formatée correctement
+      expect(billsToDisplay[0].date).toEqual(formatDate(mockedBills[0].date));
+      // Vérification si le statut de la première facture est formaté correctement
+      expect(billsToDisplay[0].status).toEqual(
+        formatStatus(mockedBills[0].status)
+      );
+    });
+
+    test("it should return undefined if this.store is undefined", async () => {
+      // Création d'une nouvelle instance de Bills avec store undefined
+      const undefinedBillsContainer = new Bills({
+        document,
+        onNavigate,
+        store: undefined,
+        localStorage: window.localStorage,
+      });
+
+      // Appel de la fonction getBills et vérification si elle renvoie undefined
+      const billsToDisplay = await undefinedBillsContainer.getBills();
+      expect(billsToDisplay).toBeUndefined();
+    });
+  });
+
+  describe("When I fetch all date", () => {
+    test("No error occurs then all bills should be displayed", async () => {
+      // Configuration du localStorage avec des informations utilisateur
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ type: "Employee", email: "a@a" })
+      );
+      // Création d'un élément div pour simuler l'interface utilisateur
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.append(root);
+      // Appel de la fonction router pour la navigation
+      router();
+      window.onNavigate(ROUTES_PATH.Bills);
+
+      // Attente de l'affichage des factures
+      await waitFor(() => screen.getByText("Mes notes de frais"));
+      const allBills = screen.getByTestId("tbody").children;
+      const result = screen.getByText("test1");
+
+      // Vérification si les 4 factures sont affichées
+      expect(result).toBeTruthy();
+      expect(allBills.length).toBe(4);
+    });
+
+    describe("Error appends on fetch", () => {
+      // Configuration de mockStore.bills pour jeter une erreur lors de l'appel et définition du localStorage avec des informations utilisateur
+      beforeEach(() => {
+        jest.spyOn(mockStore, "bills");
+        Object.defineProperty(window, "localStorage", {
+          value: localStorageMock,
+        });
+        window.localStorage.setItem(
+          "user",
+          JSON.stringify({
+            type: "Employee",
+            email: "a@a",
+          })
+        );
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        document.body.appendChild(root);
+        router();
+      });
+      test("It is a 500 error Then error page should be displayed", async () => {
+        // Configuration de mockStore.bills pour jeter une erreur 500 lors de l'appel et vérification de l'affichage de la page d'erreur avec le bon message d'erreur 500
+        mockStore.bills.mockImplementationOnce(() => {
+          throw new Error("Erreur 500");
+        });
+        document.body.innerHTML = BillsUI({ error: "Erreur 500" });
+        const error = screen.getByText(/Erreur 500/);
+        expect(error).toBeTruthy();
+      });
+
+      test("It is a 404 error", async () => {
+        // Configuration de mockStore.bills pour jeter une erreur 404 lors de l'appel et vérification de l'affichage de la page d'erreur avec le bon message d'erreur 404
+        mockStore.bills.mockImplementationOnce(() => {
+          throw new Error("Erreur 404");
+        });
+        document.body.innerHTML = BillsUI({ error: "Erreur 404" });
+        const error = screen.getByText(/Erreur 404/);
+        expect(error).toBeTruthy();
+      });
     });
   });
 });
