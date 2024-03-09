@@ -61,3 +61,19 @@ textarea:focus, input:focus, select:focus {
 *[placeholder] {
   color: #0E5AE5 !important;
 }
+
+.active {
+  color: red;
+}
+.hide {
+  display: none;
+}
+
+.form-newbill-container span.error.active {
+  color: red;
+  display: block;
+}
+
+.form-newbill-container span.error {
+  display: none;
+}

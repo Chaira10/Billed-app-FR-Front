@@ -5,33 +5,28 @@ import { ROUTES_PATH } from '../constants/routes.js'
 import USERS_TEST from '../constants/usersTest.js'
 import Logout from "./Logout.js"
 
-// Fonction pour filtrer les factures en fonction du statut
 export const filteredBills = (data, status) => {
-   // Vérifie si data est défini et non vide
   return (data && data.length) ?
-  // Utilise la méthode filter pour parcourir les factures dans data
     data.filter(bill => {
       let selectCondition
 
-      // Vérification si l'environnement est Jest (test)
+      // in jest environment
       if (typeof jest !== 'undefined') {
-        // Si c'est un environnement de test, vérifie simplement le statut de la facture
         selectCondition = (bill.status === status)
       }
       /* istanbul ignore next */
       else {
-         // Environnement de production
+        // in prod environment
         const userEmail = JSON.parse(localStorage.getItem("user")).email
-        // Vérifie le statut de la facture et si l'email est autorisé pour l'affichage
         selectCondition =
           (bill.status === status) &&
-          // Vérifie si l'email de la facture est dans la liste des utilisateurs autorisés
           ![...USERS_TEST, userEmail].includes(bill.email)
       }
 
-      return selectCondition // Renvoie la condition de sélection résultante
-    }) : [] // Renvoie un tableau vide si data est vide ou non défini
+      return selectCondition
+    }) : []
 }
+
  // Fonction pour générer le contenu HTML d'une carte de facture
  // Fonction pour créer une carte de facture à partir des données fournies
 export const card = (bill) => {

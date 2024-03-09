@@ -6,7 +6,7 @@ import {fireEvent, screen, waitFor} from "@testing-library/dom"
 import userEvent from '@testing-library/user-event'
 import DashboardFormUI from "../views/DashboardFormUI.js"
 import DashboardUI from "../views/DashboardUI.js"
-import Dashboard, { filteredBills, cards } from "../containers/Dashboard.js"
+import Dashboard, { filteredBills, cards , card} from "../containers/Dashboard.js"
 import { ROUTES, ROUTES_PATH } from "../constants/routes"
 import { localStorageMock } from "../__mocks__/localStorage.js"
 import mockStore from "../__mocks__/store"
@@ -15,8 +15,50 @@ import router from "../app/Router"
 
 jest.mock("../app/store", () => mockStore)
 
+
+
 // On commence le groupe de tests
 describe('Given I am connected as an Admin', () => {
+
+
+
+
+
+
+  describe('card function', () => {
+    test('should extract first and last names correctly when email contains a dot', () => {
+      const bill = {
+        email: 'prenom.nom@example.com',
+        id: '1',
+        name: 'Facture 1',
+        amount: '100',
+        date: new Date('2021-08-01'),
+        type: 'Type 1'
+      };
+      const result = card(bill);
+      expect(result).toContain('prenom nom'); // Vérifiez que le résultat contient le prénom et le nom séparés par un espace
+    });
+  
+    test('should handle emails without a dot correctly', () => {
+      const bill = {
+        email: 'prenomnom@example.com',
+        id: '2',
+        name: 'Facture 2',
+        amount: '200',
+        date: new Date('2021-09-01'),
+        type: 'Type 2'
+      };
+      const result = card(bill);
+      expect(result).toContain('prenomnom'); // Vérifiez que le résultat contient le nom complet sans espace, car il n'y a pas de point
+    });
+  });
+
+
+
+
+
+
+  
   // On commence le test Lorsque je suis sur la page du tableau de bord, il y a des factures, et il y en a une en attente.
   describe('When I am on Dashboard page, there are bills, and there is one pending', () => {
     // On test Ensuite, l'option FilteredBills by pending status (factures filtrées en fonction de l'état d'avancement) devrait renvoyer 1 facture.
@@ -27,6 +69,8 @@ describe('Given I am connected as an Admin', () => {
       expect(filtered_bills.length).toBe(1)
     })
   })
+
+
   // On commence le groupe de tests
   describe('When I am on Dashboard page, there are bills, and there is one accepted', () => {
     // On effectue le test : alors, lorsqu'il y a une page Dashboard, des factures et qu'il y a une facture acceptée
@@ -324,6 +368,7 @@ describe('Given I am connected as Admin and I am on Dashboard page and I clicked
     })
   })
 })
+
 
 // test d'intégration GET
 // On décrit le contexte : Étant connecté en tant qu'administrateur,

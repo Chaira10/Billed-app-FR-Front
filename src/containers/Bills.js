@@ -43,7 +43,7 @@ export default class {
       .then(snapshot => {
         // Tri des factures par date de manière décroissante (du plus récent au plus ancien)
         const bills = snapshot
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        // .sort((a, b) => new Date(b.date) - new Date(a.date))
           .map((doc) => {
             try {
               return {

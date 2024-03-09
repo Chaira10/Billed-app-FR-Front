@@ -47,6 +47,7 @@ export default class Login {
     // Tentative de connexion de l'utilisateur ou création s'il n'existe pas
     this.login(user)
       .catch(
+        /* istanbul ignore next */ 
         (err) => this.createUser(user) // Si une erreur survient, tente de créer l'utilisateur
       )
       .then(() => {
@@ -67,16 +68,21 @@ export default class Login {
     e.preventDefault() // Empêche le comportement de soumission par défaut du formulaire
     // Création d'un objet "user" contenant les informations de l'administrateur
     const user = {
-      type: "Admin", // Le type de l'utilisateur est "Admin"
-      email: e.target.querySelector(`input[data-testid="admin-email-input"]`).value, // Récupération de l'email depuis le champ du formulaire
-      password: e.target.querySelector(`input[data-testid="admin-password-input"]`).value, // Récupération du mot de passe depuis le champ du formulaire
-      status: "connected" // L'état de connexion de l'utilisateur est défini sur "connected"
+      // Le type de l'utilisateur est "Admin"
+      type: "Admin", 
+      // Récupération de l'email depuis le champ du formulaire
+      email: e.target.querySelector(`input[data-testid="admin-email-input"]`).value, 
+      // Récupération du mot de passe depuis le champ du formulaire
+      password: e.target.querySelector(`input[data-testid="admin-password-input"]`).value, 
+      // L'état de connexion de l'utilisateur est défini sur "connected"
+      status: "connected" 
     }
     // Stockage des informations utilisateur dans localStorage
     this.localStorage.setItem("user", JSON.stringify(user))
      // Tentative de connexion de l'utilisateur ou création s'il n'existe pas
     this.login(user)
       .catch(
+        /* istanbul ignore next */ 
         (err) => this.createUser(user) // Si une erreur survient, tente de créer l'utilisateur
       )
       .then(() => {
@@ -94,6 +100,7 @@ export default class Login {
 
   // not need to cover this function by tests
   // Fonction de connexion (non nécessaire pour les tests)
+  /* istanbul ignore next */ 
   login = (user) => {
     if (this.store) { // Vérifie si le magasin de données (store) est disponible
       return this.store // Si oui, exécute la fonction login du magasin
@@ -112,6 +119,7 @@ export default class Login {
   // not need to cover this function by tests
   // Fonction de création d'utilisateur (non nécessaire pour les tests)
   // Méthode pour créer un nouvel utilisateur
+  /* istanbul ignore next */ 
   createUser = (user) => {
     if (this.store) { // Vérifie si le magasin de données (store) est disponible
       return this.store // Si oui, exécute la fonction de création d'utilisateur du magasin
@@ -124,7 +132,7 @@ export default class Login {
       })})
       .then(() => {
         // Une fois l'utilisateur créé avec succès, affiche un message de succès
-        console.log(`User with ${user.email} is created`)
+        // console.log(`User with ${user.email} is created`)
         // Tente de connecter l'utilisateur nouvellement créé
         return this.login(user)
       })
